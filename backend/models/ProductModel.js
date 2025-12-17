@@ -13,7 +13,7 @@ const Product = mongoose.Schema({
     required: true,
   },
   barcode: {
-    type: String,
+    type: Number,
     unique: true,
   },
   category: {

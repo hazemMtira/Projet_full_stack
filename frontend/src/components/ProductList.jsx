@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getProducts, deleteProduct } from "../api";
-import axios from "axios";
-axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -36,8 +34,8 @@ const ProductList = () => {
       .filter((product) => {
         const searchLower = query.toLowerCase();
         const nameLower = product.name.toLowerCase();
-        const barcode = product.barcode || "";
-        const id = product._id || "";
+        const barcode = String(product.barcode || "");
+        const id = String(product._id || "");
 
         return (
           nameLower.includes(searchLower) ||
