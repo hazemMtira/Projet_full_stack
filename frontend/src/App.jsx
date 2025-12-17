@@ -1,6 +1,6 @@
-import AddUser from "./components/AddUser";
-import EditUser from "./components/EditUser";
-import UserList from "./components/UserList";
+import AddProduct from "./components/AddProduct";
+import EditProduct from "./components/EditProduct";
+import ProductList from "./components/ProductList";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const App = () => {
@@ -8,10 +8,9 @@ const App = () => {
     <div className="container pt-5">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<UserList />} />
-          <Route path="/add" element={<AddUser />} />
-          <Route path="/edit/:id" element={<EditUser />} />
-
+          <Route path="/" element={<ProductList />} />
+          <Route path="/add" element={<AddProduct />} />
+          <Route path="/edit/:id" element={<EditProduct />} />
         </Routes>
       </BrowserRouter>
     </div>

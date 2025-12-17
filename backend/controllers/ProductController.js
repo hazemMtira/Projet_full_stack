@@ -62,6 +62,7 @@ export const searchProducts = async (req, res) => {
     const products = await Product.find({
       $or: [
         { name: { $regex: query, $options: "i" } },
+        { _id: query },
         { barcode: { $regex: query, $options: "i" } },
       ],
     });
