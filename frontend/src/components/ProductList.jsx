@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getProducts, deleteProduct } from "../api";
+import axios from "axios";
+axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -112,6 +114,7 @@ const ProductList = () => {
               <th>Description</th>
               <th>Price</th>
               <th>Barcode</th>
+              <th>Stock</th>
               <th>Category</th>
               <th>Actions</th>
             </tr>
@@ -119,7 +122,7 @@ const ProductList = () => {
           <tbody>
             {products.length === 0 ? (
               <tr>
-                <td colSpan="7" style={{ textAlign: "center" }}>
+                <td colSpan="8" style={{ textAlign: "center" }}>
                   {searchQuery
                     ? "No products found matching your search"
                     : "No products available"}
@@ -127,12 +130,32 @@ const ProductList = () => {
               </tr>
             ) : (
               products.map((product, index) => (
-                <tr key={product._id}>
+                <tr
+                  key={product._id}
+                  style={{
+                    backgroundColor:
+                      product.stock <= 5
+                        ? "rgba(239, 68, 68, 0.15)"
+                        : "transparent",
+                    borderLeft:
+                      product.stock <= 5 ? "4px solid #ef4444" : "none",
+                  }}
+                >
                   <td>{index + 1}</td>
                   <td>{product.name}</td>
                   <td>{product.description}</td>
                   <td>${product.price}</td>
                   <td>{product.barcode}</td>
+                  <td>
+                    <span
+                      style={{
+                        color: product.stock <= 5 ? "#ef4444" : "inherit",
+                        fontWeight: product.stock <= 5 ? "bold" : "normal",
+                      }}
+                    >
+                      {product.stock || 0}
+                    </span>
+                  </td>
                   <td>{product.category}</td>
                   <td>
                     <Link

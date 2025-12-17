@@ -19,6 +19,11 @@ const Product = mongoose.Schema({
   category: {
     type: String,
   },
+  stock: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
 });
 
 export default mongoose.model("Products", Product);

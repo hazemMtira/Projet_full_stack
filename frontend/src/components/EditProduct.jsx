@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getProductById, updateProduct } from "../api";
 
+
 const EditProduct = () => {
   const [form, setForm] = useState({
     name: "",
@@ -9,34 +10,56 @@ const EditProduct = () => {
     price: "",
     barcode: "",
     category: "",
+    stock: "",
   });
 
   const navigate = useNavigate();
   const { id } = useParams();
 
+  // Fetch product data on mount
   useEffect(() => {
     const fetchProduct = async () => {
+      if (!id) return;
       try {
         const res = await getProductById(id);
         setForm(res.data);
       } catch (error) {
-        console.log(error);
+        console.error("Failed to fetch product:", error);
+        alert("Error fetching product");
       }
     };
     fetchProduct();
   }, [id]);
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
+
+  // Number-only input handler
+  const handleNumberChange = (e, field) => {
+    const value = e.target.value;
+    if (value === "" || /^\d+$/.test(value)) {
+      setForm({ ...form, [field]: value });
+    }
   };
 
   const updateProductHandler = async (e) => {
     e.preventDefault();
     try {
-      await updateProduct(id, form);
+      const productData = {
+        ...form,
+        price: parseFloat(form.price),
+        stock: parseInt(form.stock) || 0,
+      };
+      await updateProduct(id, productData);
+      alert("Product updated successfully!");
       navigate("/");
     } catch (error) {
-      console.log(error);
+      console.error("Update failed:", error);
+      alert(
+        `Failed to update product: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   };
 
@@ -60,6 +83,7 @@ const EditProduct = () => {
                 />
               </div>
             </div>
+
             <div className="field">
               <label className="label">Description</label>
               <div className="control">
@@ -72,6 +96,7 @@ const EditProduct = () => {
                 />
               </div>
             </div>
+
             <div className="field">
               <label className="label">Price</label>
               <div className="control">
@@ -86,6 +111,7 @@ const EditProduct = () => {
                 />
               </div>
             </div>
+
             <div className="field">
               <label className="label">Barcode</label>
               <div className="control">
@@ -93,12 +119,42 @@ const EditProduct = () => {
                   type="text"
                   name="barcode"
                   className="input"
-                  placeholder="Barcode"
+                  placeholder="Barcode (numbers only)"
                   value={form.barcode}
-                  onChange={handleChange}
+                  onChange={(e) => handleNumberChange(e, "barcode")}
+                  pattern="\d+"
+                  inputMode="numeric"
+                  required
                 />
               </div>
             </div>
+
+            <div className="field">
+              <label className="label">Stock</label>
+              <div className="control">
+                <input
+                  type="text"
+                  name="stock"
+                  className="input"
+                  placeholder="Stock Quantity"
+                  value={form.stock}
+                  onChange={(e) => handleNumberChange(e, "stock")}
+                  pattern="\d+"
+                  inputMode="numeric"
+                  required
+                />
+              </div>
+              <p className="help">
+                {form.stock < 5 && form.stock !== "" ? (
+                  <span style={{ color: "#d32f2f", fontWeight: "bold" }}>
+                    ⚠️ Low stock alert!
+                  </span>
+                ) : (
+                  "Enter stock quantity (numbers only)"
+                )}
+              </p>
+            </div>
+
             <div className="field">
               <label className="label">Category</label>
               <div className="control">
@@ -112,9 +168,13 @@ const EditProduct = () => {
                 />
               </div>
             </div>
+
             <div className="field">
               <div className="control">
-                <button className="button is-primary is-fullwidth" type="submit">
+                <button
+                  className="button is-primary is-fullwidth"
+                  type="submit"
+                >
                   Update Product
                 </button>
               </div>

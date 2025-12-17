@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveProduct } from "../api";
+import axios from "axios";
+
+axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
 
 const AddProduct = () => {
   const [form, setForm] = useState({
@@ -9,6 +12,7 @@ const AddProduct = () => {
     price: "",
     barcode: "",
     category: "",
+    stock: "",
   });
 
   const navigate = useNavigate();
@@ -17,43 +21,50 @@ const AddProduct = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Special handler for barcode - only allows numbers
   const handleBarcodeChange = (e) => {
     const value = e.target.value;
-    // Only allow digits (0-9)
     if (value === "" || /^\d+$/.test(value)) {
       setForm({ ...form, barcode: value });
     }
   };
 
+  const handleStockChange = (e) => {
+    const value = e.target.value;
+    if (value === "" || /^\d+$/.test(value)) {
+      setForm({ ...form, stock: value });
+    }
+  };
+
   const saveProductHandler = async (e) => {
     e.preventDefault();
-    console.log("Form submitted with data:", form);
-    
-    // Validate barcode has at least one number
+
     if (!form.barcode || form.barcode.trim() === "") {
       alert("Barcode is required and must contain numbers");
       return;
     }
-    
-    // Prepare data - convert price to number
+
+    if (!form.stock || form.stock.trim() === "") {
+      alert("Stock quantity is required");
+      return;
+    }
+
     const productData = {
       ...form,
       price: parseFloat(form.price),
-      barcode: form.barcode.trim()
+      barcode: form.barcode.trim(),
+      stock: parseInt(form.stock, 10),
     };
-    
-    console.log("Sending product data:", productData);
-    
+
     try {
       const response = await saveProduct(productData);
-      console.log("Product saved successfully:", response);
       alert("Product saved successfully!");
       navigate("/");
     } catch (error) {
-      console.error("Error saving product:", error);
-      console.error("Error response:", error.response?.data);
-      alert(`Failed to save product: ${error.response?.data?.message || error.message}`);
+      alert(
+        `Failed to save product: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   };
 
@@ -77,6 +88,7 @@ const AddProduct = () => {
                 />
               </div>
             </div>
+
             <div className="field">
               <label className="label">Description</label>
               <div className="control">
@@ -89,6 +101,7 @@ const AddProduct = () => {
                 />
               </div>
             </div>
+
             <div className="field">
               <label className="label">Price</label>
               <div className="control">
@@ -103,6 +116,7 @@ const AddProduct = () => {
                 />
               </div>
             </div>
+
             <div className="field">
               <label className="label">Barcode</label>
               <div className="control">
@@ -120,6 +134,25 @@ const AddProduct = () => {
               </div>
               <p className="help">Only numbers are allowed (required)</p>
             </div>
+
+            <div className="field">
+              <label className="label">Stock</label>
+              <div className="control">
+                <input
+                  type="text"
+                  name="stock"
+                  className="input"
+                  placeholder="Stock Quantity"
+                  value={form.stock}
+                  onChange={handleStockChange}
+                  pattern="\d+"
+                  inputMode="numeric"
+                  required
+                />
+              </div>
+              <p className="help">Enter stock quantity (numbers only)</p>
+            </div>
+
             <div className="field">
               <label className="label">Category</label>
               <div className="control">
@@ -133,9 +166,13 @@ const AddProduct = () => {
                 />
               </div>
             </div>
+
             <div className="field">
               <div className="control">
-                <button className="button is-primary is-fullwidth" type="submit">
+                <button
+                  className="button is-primary is-fullwidth"
+                  type="submit"
+                >
                   Save Product
                 </button>
               </div>
